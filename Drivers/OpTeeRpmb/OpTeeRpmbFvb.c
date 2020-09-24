@@ -57,7 +57,7 @@ ReadWriteRpmb (
 
   SvcArgs.Arg0 = ARM_SVC_ID_FFA_MSG_SEND_DIRECT_REQ_AARCH64;
   SvcArgs.Arg1 = storage_id;
-  SvcArgs.Arg2 = 0; //FIXME??
+  SvcArgs.Arg2 = 0;
   SvcArgs.Arg3 = SvcAct;
   SvcArgs.Arg4 = Addr;
   SvcArgs.Arg5 = NumBytes;
@@ -66,7 +66,7 @@ ReadWriteRpmb (
   ArmCallSvc (&SvcArgs);
   if (SvcArgs.Arg3) {
     DEBUG ((DEBUG_ERROR, "%a: Svc Call 0x%08x Addr: 0x%08x len: 0x%x Offset: 0x%x failed with 0x%x\n",
-     __func__, SvcAct, Addr, NumBytes, Offset, SvcArgs.Arg0));
+     __func__, SvcAct, Addr, NumBytes, Offset, SvcArgs.Arg3));
   }
 
   return SvcArgs.Arg3;
