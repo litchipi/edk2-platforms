@@ -68,7 +68,13 @@ READ_LOCK_STATUS   = TRUE
   INF Drivers/OpTeeRpmb/OpTeeRpmbFv.inf
   INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteStandaloneMm.inf
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableStandaloneMm.inf
+!if $(ARCH) == AARCH64
   INF StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch64/StandaloneMmCpu.inf
+!endif
+!if $(ARCH) == ARM
+  INF StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch32/StandaloneMmCpu.inf
+!endif
+
 ################################################################################
 #
 # Rules are use with the [FV] section's module INF type to define
