@@ -16,7 +16,7 @@
   PLATFORM_VERSION               = 1.0
   DSC_SPECIFICATION              = 0x00010011
   OUTPUT_DIRECTORY               = Build/$(PLATFORM_NAME)
-  SUPPORTED_ARCHITECTURES        = AARCH64
+  SUPPORTED_ARCHITECTURES        = ARM|AARCH64
   BUILD_TARGETS                  = DEBUG|RELEASE|NOOPT
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = Platform/StMMRpmb/PlatformStandaloneMm.fdf
@@ -74,6 +74,11 @@
   #
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
 
+[LibraryClasses.ARM]
+  ArmSoftFloatLib|ArmPkg/Library/ArmSoftFloatLib/ArmSoftFloatLib.inf
+  NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
+  NULL|ArmPkg/Library/ArmSvcLib/ArmSvcLib.inf
+
 [LibraryClasses.common.MM_STANDALONE]
   HobLib|StandaloneMmPkg/Library/StandaloneMmHobLib/StandaloneMmHobLib.inf
   MmServicesTableLib|MdePkg/Library/StandaloneMmServicesTableLib/StandaloneMmServicesTableLib.inf
@@ -84,6 +89,7 @@
   PlatformSecureLib|SecurityPkg/Library/PlatformSecureLibNull/PlatformSecureLibNull.inf
   SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
+
 ################################################################################
 #
 # Pcd Section - list of all EDK II PCD Entries defined by this Platform
@@ -139,7 +145,6 @@
   #
   Drivers/OpTeeRpmb/OpTeeRpmbFv.inf
   StandaloneMmPkg/Core/StandaloneMmCore.inf
-  StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch64/StandaloneMmCpu.inf
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteStandaloneMm.inf {
     <LibraryClasses>
       NULL|Drivers/OpTeeRpmb/FixupPcd.inf
@@ -154,6 +159,12 @@
       NULL|Drivers/OpTeeRpmb/FixupPcd.inf
   }
 
+[Components.AARCH64]
+  StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch64/StandaloneMmCpu.inf
+
+[Components.ARM]
+  StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch32/StandaloneMmCpu.inf
+
 ###################################################################################################
 #
 # BuildOptions Section - Define the module specific tool chain flags that should be used as
@@ -166,3 +177,7 @@
 [BuildOptions.AARCH64]
 GCC:*_*_*_DLINK_FLAGS = -z common-page-size=0x1000 -march=armv8-a+nofp
 GCC:*_*_*_CC_FLAGS = -mstrict-align
+
+[BuildOptions.ARM]
+GCC:*_*_*_DLINK_FLAGS = -z common-page-size=0x1000 -march=armv7-a
+GCC:*_*_*_CC_FLAGS = -fno-stack-protector
