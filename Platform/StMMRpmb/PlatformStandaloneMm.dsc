@@ -112,7 +112,7 @@
 
 !if $(UART_ENABLE)
   # PL011 - Serial Terminal
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x40418000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x40416000 
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200
   gArmPlatformTokenSpaceGuid.PL011UartClkInHz|0xA6E49C0
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultReceiveFifoDepth|0
