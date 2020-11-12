@@ -9,9 +9,25 @@
 #define __OPTEE_RPMB_FV_
 
 /* SVC Args */
-#define SP_SVC_RPMB_READ                0xC4000066
-#define SP_SVC_RPMB_WRITE               0xC4000067
-#define SP_SVC_GET_UART                 0xC4000068
+#define SP_SVC_RPMB_READ_64             0xC4000066
+#define SP_SVC_RPMB_WRITE_64            0xC4000067
+#define SP_SVC_GET_UART_64              0xC4000068
+
+#define SP_SVC_RPMB_READ_32             0x84000066
+#define SP_SVC_RPMB_WRITE_32            0x84000067
+#define SP_SVC_GET_UART_32              0x84000068
+
+#ifdef MDE_CPU_AARCH64
+#define SP_SVC_RPMB_READ                SP_SVC_RPMB_READ_64
+#define SP_SVC_RPMB_WRITE               SP_SVC_RPMB_WRITE_64
+#define SP_SVC_GET_UART                 SP_SVC_GET_UART_64
+#endif
+#ifdef MDE_CPU_ARM
+#define SP_SVC_RPMB_READ                SP_SVC_RPMB_READ_32
+#define SP_SVC_RPMB_WRITE               SP_SVC_RPMB_WRITE_32
+#define SP_SVC_GET_UART                 SP_SVC_GET_UART_32
+#endif
+
 
 #define FILENAME "EFI_VARS"
 

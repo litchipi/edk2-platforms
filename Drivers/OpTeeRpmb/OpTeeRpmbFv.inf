@@ -56,3 +56,9 @@
 
 [Depex]
   TRUE
+
+[BuildOptions.AARCH64]
+GCC:*_*_*_CC_FLAGS = -DAARCH64
+
+[BuildOptions.ARM]
+GCC:*_*_*_CC_FLAGS = -DARM32

@@ -55,7 +55,12 @@ ReadWriteRpmb (
 
   ZeroMem (&SvcArgs, sizeof (SvcArgs));
 
+#ifdef AARCH64
   SvcArgs.Arg0 = ARM_SVC_ID_FFA_MSG_SEND_DIRECT_REQ_AARCH64;
+#endif
+#ifdef ARM32
+  SvcArgs.Arg0 = ARM_SVC_ID_FFA_MSG_SEND_DIRECT_REQ_AARCH32;
+#endif
   SvcArgs.Arg1 = storage_id;
   SvcArgs.Arg2 = 0;
   SvcArgs.Arg3 = SvcAct;
@@ -366,6 +371,7 @@ OpTeeRpmbFvbWrite (
   EFI_STATUS   Status = EFI_SUCCESS;
   VOID         *Base;
   UINTN        Ret;
+  UINTN        SvcAct;
 
   Instance = INSTANCE_FROM_FVB_THIS(This);
   if (Instance->Initialized == FALSE) {
@@ -374,7 +380,14 @@ OpTeeRpmbFvbWrite (
   Base = (VOID *)Instance->MemBaseAddress + Lba * Instance->BlockSize + Offset;
   // We can map OP-TEE errors to EFI exitcodes and  return a more
   // realistic error. Keep it simple for now
-  Ret = ReadWriteRpmb (SP_SVC_RPMB_WRITE, (UINTN) Buffer, *NumBytes,
+#ifdef AARCH64
+  SvcAct = SP_SVC_RPMB_WRITE;
+#endif
+#ifdef ARM32
+  SvcAct = SP_SVC_RPMB_WRITE_32;
+#endif
+
+  Ret = ReadWriteRpmb (SvcAct, (UINTN) Buffer, *NumBytes,
     Lba * Instance->BlockSize + Offset);
   if (Ret) {
     return EFI_DEVICE_ERROR;
@@ -449,6 +462,7 @@ OpTeeRpmbFvbErase (
   VOID    *Buf;
   VA_LIST Args;
   UINTN   Ret;
+  UINTN   SvcAct;
 
   Instance = INSTANCE_FROM_FVB_THIS(This);
 
@@ -468,7 +482,14 @@ OpTeeRpmbFvbErase (
       return EFI_DEVICE_ERROR;
     }
     // Write the device
-    Ret = ReadWriteRpmb (SP_SVC_RPMB_WRITE, (UINTN) Buf, NumBytes,
+#ifdef AARCH64
+  SvcAct = SP_SVC_RPMB_WRITE;
+#endif
+#ifdef ARM32
+  SvcAct = SP_SVC_RPMB_WRITE_32;
+#endif
+
+    Ret = ReadWriteRpmb (SvcAct, (UINTN) Buf, NumBytes,
      Start * Instance->BlockSize);
     if (Ret) {
       return EFI_DEVICE_ERROR;
@@ -498,15 +519,23 @@ ReadEntireFlash (
  )
 {
   UINTN ReadAddr;
+  UINTN SvcAct;
 
   UINTN StorageFtwWorkingSize = PcdGet32(PcdFlashNvStorageFtwWorkingSize);
   UINTN StorageVariableSize   = PcdGet32(PcdFlashNvStorageVariableSize);
   UINTN StorageFtwSpareSize   = PcdGet32(PcdFlashNvStorageFtwSpareSize);
 
+#ifdef AARCH64
+  SvcAct = SP_SVC_RPMB_READ;
+#endif
+#ifdef ARM32
+  SvcAct = SP_SVC_RPMB_READ_32;
+#endif
+
   ReadAddr = Instance->MemBaseAddress;
   // There's no need to check if the read failed here. The upper EDK2 layers
   // will initialize the flash correctly if the in-memory copy is wrong
-  ReadWriteRpmb(SP_SVC_RPMB_READ, ReadAddr, StorageVariableSize +
+  ReadWriteRpmb(SvcAct, ReadAddr, StorageVariableSize +
     StorageFtwWorkingSize + StorageFtwSpareSize , 0);
 }
 
@@ -592,6 +621,7 @@ InitializeFvAndVariableStoreHeaders (
   UINTN                      HeadersLength;
   VOID*                      Headers;
   UINTN                      Ret;
+  UINTN                      SvcAct;
 
   HeadersLength = sizeof(EFI_FIRMWARE_VOLUME_HEADER) +
                   sizeof(EFI_FV_BLOCK_MAP_ENTRY) +
@@ -638,7 +668,14 @@ InitializeFvAndVariableStoreHeaders (
   VariableStoreHeader->Format = VARIABLE_STORE_FORMATTED;
   VariableStoreHeader->State = VARIABLE_STORE_HEALTHY;
 
-  Ret = ReadWriteRpmb(SP_SVC_RPMB_WRITE, (UINTN) Headers, HeadersLength, 0);
+#ifdef AARCH64
+  SvcAct = SP_SVC_RPMB_WRITE;
+#endif
+#ifdef ARM32
+  SvcAct = SP_SVC_RPMB_WRITE_32;
+#endif
+
+  Ret = ReadWriteRpmb(SvcAct, (UINTN) Headers, HeadersLength, 0);
   if (Ret) {
     Status = EFI_DEVICE_ERROR;
     goto Exit;
@@ -661,6 +698,7 @@ FvbInitialize (
   EFI_FIRMWARE_VOLUME_HEADER *FwVolHeader;
   EFI_STATUS                  Status;
   UINTN                       Ret;
+  UINTN                       SvcAct;
 
   if (Instance->Initialized == TRUE) {
     return EFI_SUCCESS;
@@ -700,7 +738,15 @@ FvbInitialize (
     // Reset memory
     SetMem64 ((VOID *)Instance->MemBaseAddress, Instance->NBlocks * Instance->BlockSize, ~0UL);
     DEBUG ((DEBUG_INFO, "%a: Erasing Flash.\n", __FUNCTION__));
-    Ret = ReadWriteRpmb(SP_SVC_RPMB_WRITE, Instance->MemBaseAddress,
+
+#ifdef AARCH64
+    SvcAct = SP_SVC_RPMB_WRITE;
+#endif
+#ifdef ARM32
+    SvcAct = SP_SVC_RPMB_WRITE_32;
+#endif
+
+    Ret = ReadWriteRpmb(SvcAct, Instance->MemBaseAddress,
       PcdGet32(PcdFlashNvStorageVariableSize) +
       PcdGet32(PcdFlashNvStorageFtwWorkingSize) +
       PcdGet32(PcdFlashNvStorageFtwSpareSize), 0);
