@@ -119,7 +119,7 @@
   StandaloneMmPkg/Core/StandaloneMmCore.inf
 
 [Components.AARCH64]
-  StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch64/StandaloneMmCpu.inf
+  StandaloneMmPkg/Drivers/StandaloneMmCpu/StandaloneMmCpu.inf
 
 ###################################################################################################
 #
