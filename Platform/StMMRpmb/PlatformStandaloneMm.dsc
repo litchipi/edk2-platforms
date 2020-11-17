@@ -142,6 +142,7 @@
   #
   Drivers/OpTeeRpmb/OpTeeRpmbFv.inf
   StandaloneMmPkg/Core/StandaloneMmCore.inf
+  StandaloneMmPkg/Drivers/StandaloneMmCpu/StandaloneMmCpu.inf
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteStandaloneMm.inf {
     <LibraryClasses>
       NULL|Drivers/OpTeeRpmb/FixupPcd.inf
@@ -155,12 +156,6 @@
       NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
       NULL|Drivers/OpTeeRpmb/FixupPcd.inf
   }
-
-[Components.AARCH64]
-  StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch64/StandaloneMmCpu.inf
-
-[Components.ARM]
-  StandaloneMmPkg/Drivers/StandaloneMmCpu/AArch32/StandaloneMmCpu.inf
 
 ###################################################################################################
 #
