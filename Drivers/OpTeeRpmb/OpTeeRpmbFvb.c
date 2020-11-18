@@ -311,7 +311,7 @@ OpTeeRpmbFvbRead (
     Instance->Initialize (Instance);
   }
 
-  Base = (VOID *)Instance->MemBaseAddress + Lba * Instance->BlockSize + Offset;
+  Base = (VOID *)(UINTN)Instance->MemBaseAddress + Lba * Instance->BlockSize + Offset;
   // We could read the data from the RPMB instead of memory
   // The 2 copies should already be identical
   // Copy from memory image
@@ -397,7 +397,7 @@ OpTeeRpmbFvbWrite (
   if (Instance->Initialized == FALSE) {
     Instance->Initialize (Instance);
   }
-  Base = (VOID *)Instance->MemBaseAddress + Lba * Instance->BlockSize + Offset;
+  Base = (VOID *)(UINTN)Instance->MemBaseAddress + Lba * Instance->BlockSize + Offset;
   Status = ReadWriteRpmb (SP_SVC_RPMB_WRITE, (UINTN) Buffer, *NumBytes,
     Lba * Instance->BlockSize + Offset);
   if (Status != EFI_SUCCESS) {
@@ -485,7 +485,7 @@ OpTeeRpmbFvbErase (
       return EFI_INVALID_PARAMETER;
     }
     NumBytes = NumLba * Instance->BlockSize;
-    Base = (VOID *)Instance->MemBaseAddress + Start * Instance->BlockSize;
+    Base = (VOID *)(UINTN)Instance->MemBaseAddress + Start * Instance->BlockSize;
     Buf = AllocatePool(NumLba * Instance->BlockSize);
     SetMem64 (Buf, NumLba * Instance->BlockSize, ~0UL);
     if (!Buf) {
@@ -666,7 +666,7 @@ InitializeFvAndVariableStoreHeaders (
     goto Exit;
   }
   // Install the combined header in memory
-  CopyMem ((VOID*) Instance->MemBaseAddress, Headers, HeadersLength);
+  CopyMem ((VOID*)(UINTN) Instance->MemBaseAddress, Headers, HeadersLength);
 
 Exit:
   FreePool (Headers);
@@ -712,14 +712,14 @@ FvbInitialize (
   // Read the file from disk and copy it to memory
   ReadEntireFlash (Instance);
 
-  FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *) Instance->MemBaseAddress;
+  FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *)(UINTN) Instance->MemBaseAddress;
   Status = ValidateFvHeader(FwVolHeader);
   if (EFI_ERROR (Status)) {
     // There is no valid header, so time to install one.
     DEBUG ((DEBUG_INFO, "%a: The FVB Header is not valid.\n", __FUNCTION__));
 
     // Reset memory
-    SetMem64 ((VOID *)Instance->MemBaseAddress, Instance->NBlocks * Instance->BlockSize, ~0UL);
+    SetMem64 ((VOID *)(UINTN)Instance->MemBaseAddress, Instance->NBlocks * Instance->BlockSize, ~0UL);
     DEBUG ((DEBUG_INFO, "%a: Erasing Flash.\n", __FUNCTION__));
     Status = ReadWriteRpmb(SP_SVC_RPMB_WRITE, Instance->MemBaseAddress,
       PcdGet32(PcdFlashNvStorageVariableSize) +
@@ -766,7 +766,7 @@ OpTeeRpmbFvbInit (
   mInstance.FvbProtocol.Write              = OpTeeRpmbFvbWrite;
   mInstance.FvbProtocol.Read               = OpTeeRpmbFvbRead;
 
-  mInstance.MemBaseAddress = (EFI_PHYSICAL_ADDRESS) Addr;
+  mInstance.MemBaseAddress = (EFI_PHYSICAL_ADDRESS)(UINTN) Addr;
   mInstance.Signature      = FLASH_SIGNATURE;
   mInstance.Initialize     = FvbInitialize;
   mInstance.BlockSize      = BLOCK_SIZE;
