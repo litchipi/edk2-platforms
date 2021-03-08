@@ -16,7 +16,7 @@
   PLATFORM_VERSION               = 1.0
   DSC_SPECIFICATION              = 0x0001001C
   OUTPUT_DIRECTORY               = Build/$(PLATFORM_NAME)
-  SUPPORTED_ARCHITECTURES        = AARCH64
+  SUPPORTED_ARCHITECTURES        = ARM|AARCH64
   BUILD_TARGETS                  = DEBUG|RELEASE|NOOPT
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = Platform/StandaloneMm/PlatformStandaloneMmPkg/PlatformStandaloneMmRpmb.fdf
@@ -67,6 +67,12 @@
   # NULL means link this library into all ARM images.
   #
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
+
+[LibraryClasses.ARM]
+  ArmSoftFloatLib|ArmPkg/Library/ArmSoftFloatLib/ArmSoftFloatLib.inf
+  NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
+  NULL|ArmPkg/Library/ArmSvcLib/ArmSvcLib.inf
+  RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
 
 [LibraryClasses.common.MM_STANDALONE]
   HobLib|StandaloneMmPkg/Library/StandaloneMmHobLib/StandaloneMmHobLib.inf
@@ -160,3 +166,7 @@
 [BuildOptions.AARCH64]
 GCC:*_*_*_DLINK_FLAGS = -z common-page-size=0x1000 -march=armv8-a+nofp
 GCC:*_*_*_CC_FLAGS = -mstrict-align
+
+[BuildOptions.ARM]
+GCC:*_*_*_DLINK_FLAGS = -z common-page-size=0x1000 -march=armv7-a
+GCC:*_*_*_CC_FLAGS = -fno-stack-protector
